@@ -10,14 +10,15 @@ This project is created to help with the initial creation and setup of a full-st
 To set up a full-stack project using this skeleton, you need to take the followig steps:
 
 1. You will need Docker to utilise the project's docker configuration. https://docs.docker.com/get-docker/
-2. Copy and unpack the project into a new, local folder.
+2. Download the project and copy the `full-stack` folder into your newly created project folder.
 3. Create a virtual Python environment with: `python3 -m venv venv`
 4. Activate the virtual environment: `source venv/bin/activate`
 5. Install Django: `pip install 'django<5'`
-6. Create the django project: `django-admin startproject my_project_name . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles!)
-7. Add the necessary Python packages: `pip install decouple whitenoise psycopg2-binary djangorestframework django-cors-headers`
-8. Create the requirements.txt file: `pip freeze > requirements.txt`
-9. Create a `.env` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
+6. `cd full-stack/backend`
+7. Create the django project: `django-admin startproject my_project_name . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles!)
+8. Add the necessary Python packages: `pip install decouple whitenoise psycopg2-binary djangorestframework django-cors-headers`
+9. Create the requirements.txt file: `pip freeze > requirements.txt`
+10. Create a `.env` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
     - SECRET_KEY=your-secret-django-key
     - DEBUG=True
     - DEVELOPMENT=1
@@ -30,7 +31,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
     - DJANGO_SUPERUSER_EMAIL=superuser-email
     - DJANGO_SUPERUSER_PASSWORD=superuser-password
 
-10. Update the `settings.py` file with the followings:
+11. Update the `settings.py` file with the followings:
     ```python
     from decouple import config
 
@@ -98,8 +99,8 @@ To set up a full-stack project using this skeleton, you need to take the followi
 
     ```
 
-11. Cd into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWR and Typescript options.
-12. Move the `Dockerfile.frontend` file into the `frontend` folder and rename it `Dockerfile`.
+12. Cd into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWR and Typescript options.
+13. Move the `Dockerfile.frontend` file into the `frontend` folder and rename it to `Dockerfile`.
 
 ---
 
