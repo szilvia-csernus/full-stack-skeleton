@@ -2,6 +2,9 @@
 
 This project is created to help with the initial creation and setup of a full-stack application using Django REST, PostgreSQL, ReactJS + Typescript @vite, and Docker. 
 
+
+---
+
 # Set Up Your Project
 
 To set up a full-stack project using this skeleton, you need to take the followig steps:
@@ -98,7 +101,11 @@ To set up a full-stack project using this skeleton, you need to take the followi
 11. Cd into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWR and Typescript options.
 12. Move the `Dockerfile.frontend` file into the `frontend` folder and rename it `Dockerfile`.
 
+---
 
+# Docker
+
+## Build and run your project
 
 * For the first time, run `docker-compose up --build`. This will build all the necessary docker images and will also run the docker container. 
     - The full-stack app will be available locally on `0.0.0.0:80`.
