@@ -15,7 +15,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
 4. Activate the virtual environment: `source venv/bin/activate`
 5. Install Django: `pip install 'django<5'`
 6. `cd full-stack/backend`
-7. Create the django project: `django-admin startproject my_project_name . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles!)
+7. Create the django project: `django-admin startproject django_project . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles! If you want to give a name other than `django_project`, you have to update the `entrypoint.sh` file too!)
 8. Add the necessary Python packages: `pip install decouple whitenoise psycopg2-binary djangorestframework django-cors-headers`
 9. Create the requirements.txt file: `pip freeze > requirements.txt`
 10. Create a `.env` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
