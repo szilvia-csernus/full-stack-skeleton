@@ -6,7 +6,7 @@ The docker-compose setup for development uses the built in django and node serve
 
 The production setup takes care of creating and running all migrations, creates the superuser, builds the frontend for production and starts up an `nginx` web server.
 
-Both the python and the node base images use the `alpine` distribution of linux to keep the build sizes to the minimum.
+Both the python and the node base images use the `alpine` distribution of linux to keep the image sizes to the minimum.
 
 ---
 
@@ -14,16 +14,17 @@ Both the python and the node base images use the `alpine` distribution of linux 
 
 To set up a full-stack project using this skeleton, you need to take the followig steps:
 
-0. Prerequisites: make sure you have Python and [Docker](https://docs.docker.com/get-docker/) locally on your computer.
-1. Download the project and copy the `full-stack` folder into your newly created project folder.
-2. Create a virtual Python environment with: `python3 -m venv venv`. This will only be needed for the initial setup.
-3. Activate the virtual environment: `source venv/bin/activate`
+1. Prerequisites: Make sure you have Python and [Docker](https://docs.docker.com/get-docker/) locally on your computer.
+2. Download the project and copy the `full-stack` folder as well as the two docker-compose files into your newly created project folder.
+3. While still in the root folder, create a virtual Python environment with: `python3 -m venv venv`. This will only be needed for the initial setup, we will delete it later.
+4. Activate the virtual environment: `source venv/bin/activate`
 5. Install Django: `pip install 'django<5'`
 6. `cd full-stack/backend`
 7. Create the django project: `django-admin startproject django_project . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles! If you want to give a name other than `django_project`, you have to update the `entrypoint.sh` file too!)
 8. Add the necessary Python packages: `pip install decouple whitenoise psycopg2-binary djangorestframework django-cors-headers`
 9. Create the requirements.txt file: `pip freeze > requirements.txt`
 10. Create a `.env.dev` and a `.env.prod` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
+
     `.env.dev`
     ```
     - SECRET_KEY=your-secret-django-key
@@ -102,7 +103,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
         ...
     ]
 
-    # Comment Out the default setting.
+    # Comment out or delete the default setting. We use postgres for both develobment and production.
     # DATABASES = {
     #     'default': {
     #         'ENGINE': 'django.db.backends.sqlite3',
@@ -128,8 +129,8 @@ To set up a full-stack project using this skeleton, you need to take the followi
 
     ```
 
-12. Cd into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWC and Typescript options.
-13. Move the content of the `for-frontend` folder into your new `frontend` folder. Delete the empty `for-frontend` folder.
+12. `cd` into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWC and Typescript options.
+13. Move the content of the `for-frontend` folder into your new `frontend` folder. You can now delete the original downloaded folder, you won't need it anymore.
 14. In your new `vite.config.ts` file, add the server configuration to `defineConfig`:
     ```js
     export default defineConfig({
@@ -176,3 +177,12 @@ To set up a full-stack project using this skeleton, you need to take the followi
 * To start up the container again, run `docker-compose -p prod_your_app -f docker-compose.prod.yml up`.
 * To destroy the container: `docker-compose -p prod_your_app -f docker-compose.prod.yml down`
 * To destroy all the static files and database, run `docker volume prune`.
+
+
+---
+---
+
+**Enjoy :)** and let me know if you like it or if you could improve it!
+
+---
+---
