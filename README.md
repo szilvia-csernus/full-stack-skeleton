@@ -183,7 +183,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
 ---
 ---
 
-**Enjoy :)** Let me know if you found it usefule or if you could improve it!
+**Enjoy :)** Let me know if you found it useful or if you could improve it!
 
 ---
 ---
