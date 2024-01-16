@@ -31,7 +31,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
     - DEBUG=True
     - DEVELOPMENT=1
 
-    - POSTGRES_DB=expense-app-db
+    - POSTGRES_DB=db
     - POSTGRES_USER=db-username
     - POSTGRES_PASSWORD=db-password
     ```
@@ -41,7 +41,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
     - SECRET_KEY=your-secret-django-key
     - DEBUG=False
 
-    - POSTGRES_DB=expense-app-db
+    - POSTGRES_DB=db
     - POSTGRES_USER=db-username
     - POSTGRES_PASSWORD=db-password
 
@@ -86,8 +86,8 @@ To set up a full-stack project using this skeleton, you need to take the followi
     ###
 
     INSTALLED_APPS = [
-        
         ...
+
         'rest_framework', # new
         'corsheaders', # new
         
@@ -103,7 +103,8 @@ To set up a full-stack project using this skeleton, you need to take the followi
         ...
     ]
 
-    # Comment out or delete the default setting. We use postgres for both develobment and production.
+    # Comment out or delete the default setting. We use postgres for both 
+    # development and production.
     # DATABASES = {
     #     'default': {
     #         'ENGINE': 'django.db.backends.sqlite3',
@@ -182,7 +183,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
 ---
 ---
 
-**Enjoy :)** and let me know if you like it or if you could improve it!
+**Enjoy :)** Let me know if you found it usefule or if you could improve it!
 
 ---
 ---
