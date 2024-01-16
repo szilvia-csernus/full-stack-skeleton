@@ -2,6 +2,11 @@
 
 This project is created to help with the initial creation and setup of a full-stack application using Django REST, PostgreSQL, ReactJS + Typescript @vite, and Docker. 
 
+The docker-compose setup for development uses the built in django and node servers to make use of their hot-refresh functionality during the development process.
+
+The production setup takes care of creating and running all migrations, creates the superuser, builds the frontend for production and starts up an `nginx` web server.
+
+Both the python and the node base images use the `alpine` distribution of linux to keep the build sizes to the minimum.
 
 ---
 
@@ -9,19 +14,31 @@ This project is created to help with the initial creation and setup of a full-st
 
 To set up a full-stack project using this skeleton, you need to take the followig steps:
 
-1. You will need Docker to utilise the project's docker configuration. https://docs.docker.com/get-docker/
-2. Download the project and copy the `full-stack` folder into your newly created project folder.
-3. Create a virtual Python environment with: `python3 -m venv venv`
-4. Activate the virtual environment: `source venv/bin/activate`
+0. Prerequisites: make sure you have Python and [Docker](https://docs.docker.com/get-docker/) locally on your computer.
+1. Download the project and copy the `full-stack` folder into your newly created project folder.
+2. Create a virtual Python environment with: `python3 -m venv venv`. This will only be needed for the initial setup.
+3. Activate the virtual environment: `source venv/bin/activate`
 5. Install Django: `pip install 'django<5'`
 6. `cd full-stack/backend`
 7. Create the django project: `django-admin startproject django_project . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles! If you want to give a name other than `django_project`, you have to update the `entrypoint.sh` file too!)
 8. Add the necessary Python packages: `pip install decouple whitenoise psycopg2-binary djangorestframework django-cors-headers`
 9. Create the requirements.txt file: `pip freeze > requirements.txt`
-10. Create a `.env` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
+10. Create a `.env.dev` and a `.env.prod` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
+    `.env.dev`
+    ```
     - SECRET_KEY=your-secret-django-key
     - DEBUG=True
     - DEVELOPMENT=1
+
+    - POSTGRES_DB=expense-app-db
+    - POSTGRES_USER=db-username
+    - POSTGRES_PASSWORD=db-password
+    ```
+
+    `.env.prod`
+    ```
+    - SECRET_KEY=your-secret-django-key
+    - DEBUG=False
 
     - POSTGRES_DB=expense-app-db
     - POSTGRES_USER=db-username
@@ -30,10 +47,22 @@ To set up a full-stack project using this skeleton, you need to take the followi
     - DJANGO_SUPERUSER_USERNAME=superuser-username
     - DJANGO_SUPERUSER_EMAIL=superuser-email
     - DJANGO_SUPERUSER_PASSWORD=superuser-password
+    ```
 
 11. Update the `settings.py` file with the followings:
     ```python
-    from decouple import config
+    from decouple import Config
+    import os
+
+    # Get the path to the directory of the current file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Get the current environment from the DJANGO_ENV variable
+    django_env = os.getenv('DJANGO_ENV', 'development')
+
+    # Load the appropriate .env file
+    env_file = os.path.join(current_dir, f'.env.{django_env}')
+    config = Config(env_file)
 
     ###
 
@@ -43,7 +72,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
 
     DEBUG = config("DEBUG", cast=bool, default=False)
 
-    ALLOWED_HOSTS = ['0.0.0.0']
+    ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
     CORS_ALLOWED_ORIGINS = [
         "http://localhost",
@@ -99,24 +128,51 @@ To set up a full-stack project using this skeleton, you need to take the followi
 
     ```
 
-12. Cd into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWR and Typescript options.
-13. Move the `Dockerfile.frontend` file into the `frontend` folder and rename it to `Dockerfile`.
+12. Cd into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWC and Typescript options.
+13. Move the content of the `for-frontend` folder into your new `frontend` folder. Delete the empty `for-frontend` folder.
+14. In your new `vite.config.ts` file, add the server configuration to `defineConfig`:
+    ```js
+    export default defineConfig({
+        plugins: [react()],
+        // add this server configuration:
+        server: {
+            host: true,
+        },
+    });
+    ```
 
 ---
 
 # Docker
 
-## Build and run your project
+## Run the project in DEV mode
 
-* For the first time, run `docker-compose up --build`. This will build all the necessary docker images and will also run the docker container. 
-    - The full-stack app will be available locally on `0.0.0.0:80`.
-    - The backend server will be available without the static files on `0.0.0.0:8000`.
-* To stop and destroy the container, run `docker-compose down`.
+* For the first time, run the project with `docker-compose -p dev_your_app -f docker-compose.dev.yml up --build`. This will build all the necessary docker images and will also run the docker container. 
+    - The forntend will be available on `http://localhost:5173`.
+    - The backend server will be running on `http://localhost:8000`.
+    Both servers refresh whenever the source code gets changed.
+* To set up the database, you first need to apply the migrations: `docker exec -it backend python manage.py migrate`
+* Then, create a superuser: `docker exec -it backend python manage.py createsuperuser`
+* If you need to install a new package, Pillow in this case: `docker exec -it backend pip install Pillow`
+* After each install, you have to update the requirements.txt: `docker exec -it backend pip freeze > requirements.txt.` This will overwrite your existing `requirements.txt` file with the current state of installed packages in the container.
+* After each install, you also have to rebuild the Docker image using this command: `docker-compose -p dev_your_app -f docker-compose.dev.yml up --build && docker image prune -f`. The second, `docker image prune -f` command is used to remove the old image which otherwise would stay there, dangling. Please note however, that this command will remove all other dangling images in case there was any (although this is not a bad thing :)
+* Whenever you modify the database models, don't forget to migrate the changes with the `docker exec -it backend python manage.py makemigrations` and the `docker exec -it backend python manage.py migrate` commands.
+
+* To stop the container: `CTRL + C`.
+* To start up the container again, run `docker-compose -p dev_your_app -f docker-compose.dev.yml up`.
+
+* To destroy the container: `docker-compose -p dev_your_app -f docker-compose.dev.yml down`
 * To destroy all the static files and database, run `docker volume prune`.
-* To start up the project again, run `docker-compose up`.
 
-## Docker resources
+* If docker-compose is running as expected, you can safely remove your initial `venv`:
+`rm -rf venv`
 
-* https://docs.docker.com/
-* https://www.youtube.com/watch?v=8VHheCkw-7k
-* https://www.youtube.com/watch?v=oX5ElI-koww
+## Run the project in PRODUCTION mode
+
+* For the first time, run the project with `docker-compose -p prod_your_app -f docker-compose.prod.yml up --build`. This will build all the necessary docker images, create and run all the migrations, create a superuser and will also start up the docker container. 
+    - The full-stack app will be available locally on `http://localhost:80`.
+    - The backend server will be available without the static files on `http://localhost:8000`.
+* To stop the container: `CTRL + C`.
+* To start up the container again, run `docker-compose -p prod_your_app -f docker-compose.prod.yml up`.
+* To destroy the container: `docker-compose -p prod_your_app -f docker-compose.prod.yml down`
+* To destroy all the static files and database, run `docker volume prune`.
