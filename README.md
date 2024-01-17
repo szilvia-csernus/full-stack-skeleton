@@ -21,7 +21,7 @@ To set up a full-stack project using this skeleton, you need to take the followi
 5. Install Django: `pip install 'django<5'`
 6. `cd full-stack/backend`
 7. Create the django project: `django-admin startproject django_project . ` - (Don't miss the dot, it has to be in the same folder for the Dockerfiles! If you want to give a name other than `django_project`, you have to update the `entrypoint.sh` file too!)
-8. Add the necessary Python packages: `pip install decouple whitenoise psycopg2-binary djangorestframework django-cors-headers`
+8. Add the necessary Python packages: `pip install python-dotenv whitenoise psycopg2-binary djangorestframework django-cors-headers`
 9. Create the requirements.txt file: `pip freeze > requirements.txt`
 10. Create a `.env.dev` and a `.env.prod` file in the `full-stack/backend` folder and place in the following environment variables - filled in with your own (secret) details:
 
@@ -52,26 +52,25 @@ To set up a full-stack project using this skeleton, you need to take the followi
 
 11. Update the `settings.py` file with the followings:
     ```python
-    from decouple import Config
+    from dotenv import load_dotenv
     import os
 
-    # Get the path to the directory of the current file
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+   # Check if we're in development mode
+    if os.getenv('DEVELOPMENT'):
+        # Load the development .env file
+        load_dotenv(os.path.join(BASE_DIR, '.env.dev'))
+    else:
+        # Load the production .env file
+        load_dotenv(os.path.join(BASE_DIR, '.env.prod'))
 
-    # Get the current environment from the DJANGO_ENV variable
-    django_env = os.getenv('DJANGO_ENV', 'development')
-
-    # Load the appropriate .env file
-    env_file = os.path.join(current_dir, f'.env.{django_env}')
-    config = Config(env_file)
-
-    ###
-
-    SECRET_KEY = config("SECRET_KEY", cast=str)
 
     ###
 
-    DEBUG = config("DEBUG", cast=bool, default=False)
+    SECRET_KEY = os.getenv("SECRET_KEY")
+
+    ###
+
+    DEBUG = os.getenv("DEBUG", default=False)
 
     ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
@@ -115,9 +114,9 @@ To set up a full-stack project using this skeleton, you need to take the followi
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config("POSTGRES_DB", cast=str),
-            'USER': config("POSTGRES_USER", cast=str),
-            'PASSWORD': config("POSTGRES_PASSWORD", cast=str),
+            'NAME': os.getenv("POSTGRES_DB"),
+            'USER': os.getenv("POSTGRES_USER"),
+            'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
             'HOST': 'db', # set in docker-compose.yml
             'PORT': '5432' # default postgres port
         }
@@ -178,12 +177,3 @@ To set up a full-stack project using this skeleton, you need to take the followi
 * To start up the container again, run `docker-compose -p prod_your_app -f docker-compose.prod.yml up`.
 * To destroy the container: `docker-compose -p prod_your_app -f docker-compose.prod.yml down`
 * To destroy all the static files and database, run `docker volume prune`.
-
-
----
----
-
-**Enjoy :)** Let me know if you found it useful or if you could improve it!
-
----
----
