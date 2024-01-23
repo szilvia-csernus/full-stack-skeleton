@@ -34,6 +34,8 @@ To set up a full-stack project using this skeleton, you need to take the followi
     - POSTGRES_DB=db
     - POSTGRES_USER=db-username
     - POSTGRES_PASSWORD=db-password
+
+    - FRONTEND_URL_DEV=http://localhost:5173
     ```
 
     `.env.prod`
@@ -48,15 +50,26 @@ To set up a full-stack project using this skeleton, you need to take the followi
     - DJANGO_SUPERUSER_USERNAME=superuser-username
     - DJANGO_SUPERUSER_EMAIL=superuser-email
     - DJANGO_SUPERUSER_PASSWORD=superuser-password
+
+    - FRONTEND_URL=http://localhost
     ```
 
 11. Update the `settings.py` file with the followings:
-    ```python
+
+    ```py
     from dotenv import load_dotenv
     import os
 
-   # Check if we're in development mode
-    if os.getenv('DEVELOPMENT'):
+   # The .env file will only be loaded if the project is used without Docker.
+    # If Docker is used, the DJANGO_ENV environment variable will be loaded from
+    # the docker-compose.dev.yml or docker-compose.prod.yml files.
+    load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+    # Check the DJANGO_ENV environment variable
+    DJANGO_ENV = os.getenv('DJANGO_ENV')
+
+    print('Environment: ', os.getenv('DJANGO_ENV'), '\n', 'BASE_DIR: ', BASE_DIR, '\n')
+    if DJANGO_ENV == 'development':
         # Load the development .env file
         load_dotenv(os.path.join(BASE_DIR, '.env.dev'))
     else:
@@ -74,10 +87,10 @@ To set up a full-stack project using this skeleton, you need to take the followi
 
     ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
+    # Allow CORS for the frontend
     CORS_ALLOWED_ORIGINS = [
-        "http://localhost",
-        "http://127.0.0.1",
-        "http://0.0.0.0",
+        os.getenv("FRONTEND_URL_DEV", ""),
+        os.getenv("FRONTEND_URL", "")
     ]
 
     CORS_ALLOWED_CREDENTIALS = True
@@ -130,9 +143,17 @@ To set up a full-stack project using this skeleton, you need to take the followi
     ```
 
 12. `cd` into the `full-stack` folder and create a React + Typescript + @vite project: `npm create vite@latest` or with the [latest recommendation by @vite](https://vitejs.dev/guide/), name it `frontend`, choose the React + SWC and Typescript options.
-13. Move the content of the `for-frontend` folder into your new `frontend` folder. You can now delete the original downloaded folder, you won't need it anymore.
-14. In your new `vite.config.ts` file, add the server configuration to `defineConfig`:
+13. Install `dotenv` with `npm install dotenv`.
+14. Move the content of the `for-frontend` folder into your new `frontend` folder. You can now delete the original downloaded folder, you won't need it anymore.
+15. In your new `vite.config.ts` file, add the server configuration to `defineConfig`:
     ```js
+    import { defineConfig } from 'vite';
+    import react from '@vitejs/plugin-react-swc';
+    import dotenv from 'dotenv';
+
+    // Load environment variables
+    dotenv.config();
+
     export default defineConfig({
         plugins: [react()],
         // add this server configuration:

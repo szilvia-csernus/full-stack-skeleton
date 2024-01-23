@@ -35,10 +35,11 @@ services:
     build:
       context: ./full-stack/frontend
       dockerfile: Dockerfile.prod
+      args:
+        - VITE_DJANGO_HOST=http://localhost
+        - VITE_DJANGO_PORT=8000
     volumes:
       - frontend:/app/dist
-    env_file:
-      - ./full-stack/frontend/.env.prod
   
   nginx:
     container_name: nginx

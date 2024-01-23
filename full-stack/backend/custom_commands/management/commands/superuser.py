@@ -1,12 +1,11 @@
+import os
 from django.core.management.base import BaseCommand, CommandError
-
 from django.contrib.auth import get_user_model
 
-from decouple import config
+DJANGO_SUPERUSER_USERNAME = os.getenv('DJANGO_SUPERUSER_USERNAME')
+DJANGO_SUPERUSER_PASSWORD = os.getenv('DJANGO_SUPERUSER_PASSWORD')
+DJANGO_SUPERUSER_EMAIL = os.getenv('DJANGO_SUPERUSER_EMAIL')
 
-DJANGO_SUPERUSER_USERNAME = config('DJANGO_SUPERUSER_USERNAME', cast=str)
-DJANGO_SUPERUSER_PASSWORD = config('DJANGO_SUPERUSER_PASSWORD', cast=str)
-DJANGO_SUPERUSER_EMAIL = config('DJANGO_SUPERUSER_EMAIL', cast=str)
 
 class Command(BaseCommand):
     help = 'Create a superuser'
@@ -15,7 +14,7 @@ class Command(BaseCommand):
         try:
             User = get_user_model()
             if not User.objects.filter(
-                    username=DJANGO_SUPERUSER_USERNAME).exists():
+                                username=DJANGO_SUPERUSER_USERNAME).exists():
                 user = User(
                     username=DJANGO_SUPERUSER_USERNAME,
                     email=DJANGO_SUPERUSER_EMAIL
